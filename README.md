@@ -20,25 +20,16 @@ This is a project template for a python package. Its is meant to be a starting p
 
 -   Clone the repository
 
-### Executing the program
+### Setup Wheel
 
--   How to run the program
-
-```python
-python ./src/main.py
+```bash
+python setup.py bdist_wheel
 ```
 
--   How to run the tests
+### Lint this project
 
-```python
-# Go inside of the tests folder in the root directory
-pytest
-```
-
--   How to run test with coverage
-
-```python
-pytest --cov .
+```bash
+pylint --rcfile=.pylintrc ModuleTemplate
 ```
 
 ## Help

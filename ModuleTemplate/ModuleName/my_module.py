@@ -1,5 +1,5 @@
-def sumTwoNumbers(n1: int, n2: int) -> int:
-    ''''
+def sum_two_numbers(n1: int, n2: int) -> int:
+    """'
     Returns the sum of two numbers
 
     Parameters:
@@ -8,5 +8,5 @@ def sumTwoNumbers(n1: int, n2: int) -> int:
 
     Returns:
         int: Sum of two numbers
-    '''
+    """
     return n1 + n2
