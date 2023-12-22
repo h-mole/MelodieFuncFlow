@@ -29,7 +29,7 @@ python setup.py bdist_wheel
 ### Lint this project
 
 ```bash
-pylint --rcfile=.pylintrc ModuleTemplate
+pylint --rcfile=.pylintrc MelodieFuncFlow
 ```
 
 ## Help

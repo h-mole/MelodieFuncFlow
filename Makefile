@@ -2,7 +2,7 @@ build-wheel:
 	python setup.py bdist_wheel
 
 lint:
-	pylint --rcfile=.pylintrc ModuleTemplate
+	pylint --rcfile=.pylintrc MelodieFuncFlow
 
 test:
 	pytest -s
