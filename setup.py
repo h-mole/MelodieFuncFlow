@@ -30,7 +30,7 @@ setuptools.setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     project_urls={
-        "Documentation": "http://docs.abm4all.com",
+        "Documentation": "https://github.com/hzyrc6011/MelodieFuncFlow",
     },
     packages=setuptools.find_namespace_packages(
         include=["MelodieFuncFlow", "MelodieFuncFlow.*"]
