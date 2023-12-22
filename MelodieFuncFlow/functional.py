@@ -28,19 +28,24 @@ VARTYPE3 = TypeVar("VARTYPE3")
 P = ParamSpec("P")
 
 
-def _in_ipython() -> bool:
+def _in_jupyter() -> bool:
     try:
         from IPython import get_ipython
-
-        ip = get_ipython()
-        if ip is None:
-            # from tqdm import tqdm
-            return False
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook or qtconsole
         else:
-            return True
-            # from tqdm.notebook import tqdm
+            return False
     except:
         return False
+
+
+def _import_tqdm_module():
+    if _in_jupyter():
+        from tqdm.notebook import tqdm
+    else:
+        from tqdm import tqdm
+    return tqdm
 
 
 class MelodieGenerator(Generic[VARTYPE]):
@@ -49,7 +54,7 @@ class MelodieGenerator(Generic[VARTYPE]):
     """
 
     def __init__(self, inner: Union[Generator[VARTYPE, None, None], Iterable[VARTYPE]]):
-        self.inner = inner
+        self.inner = iter(inner)
 
     def __iter__(self):
         return self
@@ -322,6 +327,7 @@ class MelodieGenerator(Generic[VARTYPE]):
         For ``MelodieGenerator``, as the total number is not determined, a counter-only
         tqdm progress indicator will be shown like ``20it [00:02,  9.01it/s]``
         """
+        tqdm = _import_tqdm_module()
 
         def _(orig_gen):
             bar = tqdm()
@@ -398,6 +404,9 @@ class MelodieFrozenGenerator(MelodieGenerator, Generic[VARTYPE]):
 
     def __next__(self) -> Any:
         raise NotImplementedError
+    
+    def head(self) -> Any:
+        return self.inner[0]
 
     def show_progress(self) -> MelodieGenerator[VARTYPE]:
         """
@@ -405,10 +414,8 @@ class MelodieFrozenGenerator(MelodieGenerator, Generic[VARTYPE]):
 
         For frozen generator, this will show a tqdm progress bar with percentage.
         """
-        if _in_ipython():
-            from tqdm.notebook import tqdm
-        else:
-            from tqdm import tqdm
+
+        tqdm = _import_tqdm_module()
 
         def _(orig_gen):
             bar = tqdm(total=len(self.inner))
@@ -438,7 +445,6 @@ class MelodieFrozenGenerator(MelodieGenerator, Generic[VARTYPE]):
         key = functools.cmp_to_key(cmp)
         new_list = [item for item in self.inner]
         new_list.sort(key=key, reverse=reverse)
-        print(new_list)
         return MelodieFrozenGenerator(new_list)
 
 

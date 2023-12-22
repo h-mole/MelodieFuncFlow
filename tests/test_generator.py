@@ -3,7 +3,10 @@ from MelodieFuncFlow import MelodieGenerator, MelodieFrozenGenerator, compose
 
 
 def test_generator():
-    pass
+    out = []
+    for item in MelodieGenerator([1, 2, 3]):
+        out.append(item)
+    assert out == [1, 2, 3]
 
 
 def test_iteration_on_generator():
@@ -24,6 +27,7 @@ def test_slice():
 
     g = MelodieGenerator(range(5))
     assert [0, 1, 2] == g.slice(0, 3).to_list()
+    g = MelodieGenerator(range(5))
     assert [3, 4] == g.slice(3).to_list()
 
 
