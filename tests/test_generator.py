@@ -52,16 +52,28 @@ def test_filter():
 
 
 def test_slice():
-    print("x", MelodieGenerator(iter([1, 2, 3, 4, 5])).slice(1, 3).to_list())
     assert [2, 3] == MelodieGenerator(iter([1, 2, 3, 4, 5])).slice(1, 3).to_list()
     assert [1, 2, 3] == MelodieGenerator(iter([1, 2, 3, 4, 5])).slice(0, 3).to_list()
 
-    g = MelodieGenerator(range(5))
-    assert [0, 1, 2] == g.slice(0, 3).to_list()
-    g = MelodieGenerator(range(5))
-    assert [0, 1] == g.slice(2).to_list()
+    # g = MelodieGenerator(range(5))
+    assert [0, 1, 2] == MelodieGenerator(range(5)).slice(0, 3).to_list()
+    assert [0, 1, 2] == MelodieGenerator(range(5))[0:3].to_list()
+    # g = MelodieGenerator(range(5))
+    assert [0, 1] == MelodieGenerator(range(5))[:2].to_list()
+    assert [0, 1] == MelodieGenerator(range(5)).slice(2).to_list()
 
     assert MelodieGenerator(range(5)).slice(2, -1).to_list() == [2, 3, 4]
+    assert MelodieGenerator(range(5))[2:].to_list() == [2, 3, 4]
+
+    try:
+        MelodieGenerator([1, 2, 3])[0:3:2]
+        raise ValueError
+    except NotImplementedError:
+        pass
+    
+    # test getting single element
+    assert 3 == MelodieGenerator(range(5))[3]
+    assert 3 == MelodieGenerator(range(5)).f[3]
 
 
 def test_reduce():
@@ -82,12 +94,11 @@ def test_folding_left():
     ret = MelodieGenerator(iter([1, 2, 3, 4, 5])).fold_left(add_to_dict, {})
     for i in [1, 2, 3, 4, 5]:
         assert ret[i] == i
-    
+
     def add_to_dict_2(dic, elem):
         k, v = elem
         dic[k] = v
         return dic
-
 
     ret = MelodieGenerator([("Alice", 98), ("Bob", 76)]).fold_left(add_to_dict_2, {})
     assert {"Alice": 98, "Bob": 76} == ret

@@ -298,8 +298,9 @@ class MelodieGenerator(Generic[VARTYPE]):
         If two arguments passed in and rbound>=0,
             the interval is close-left and open-right: ``[bound, rbound)``
 
-        If two arguments passed in and rbound<0,
-            the interval is: ``[bound, +∞)``
+        If two arguments passed in and rbound==-1,
+            the interval is: ``[bound, +∞)``.
+            **Other rbound<-1 values were not supported.**
 
         If one argument passed in, like `range`, the interval is ``[0, bound)``
         """
@@ -307,6 +308,7 @@ class MelodieGenerator(Generic[VARTYPE]):
         if rbound is None:
             start, stop = 0, bound
         elif rbound < 0:
+            assert rbound == -1, "if rbound "
             start, stop = bound, -1
         else:
             assert rbound >= bound
@@ -327,6 +329,16 @@ class MelodieGenerator(Generic[VARTYPE]):
                         break
 
         return MelodieGenerator(_(self.inner))
+
+    def __getitem__(self, index) -> Union[VARTYPE, "MelodieGenerator[VARTYPE]"]:
+        if isinstance(index, slice):
+            start = index.start if index.start is not None else 0
+            stop = index.stop if index.stop is not None else -1
+            if index.step is not None:
+                raise NotImplementedError("Stepping for slicing is not supported now")
+            return self.slice(start, stop)
+        else:
+            return self.slice(index, index + 1).head()
 
     def to_list(self) -> List[VARTYPE]:
         """

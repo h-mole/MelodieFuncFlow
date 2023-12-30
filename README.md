@@ -85,7 +85,7 @@ TypeError: unhashable type: 'dict'
 
 ### Accessing the Elements of the Generator
 
-We can access the first element by `head`:
+We can access the first element by `head` or element subscription:
 
 ```python
 In [2]: g = MelodieGenerator([1, 2, 3, 4, 5])
@@ -98,16 +98,41 @@ Out[4]: 2
 
 In [5]: g.head()
 Out[5]: 3
+
+In [6]: MelodieGenerator([1, 2, 3, 4, 5])[3]
+Out[6]: 4
 ```
 
-Also, we can `slice` this generator. The two arguments of
-this method are lower bound (required) and upper bound (`-1` by
-default), left-close and right-open.
- If the upper bound is less than zero, it will be regarded as
- infinite:
+Also, we can `slice` this generator, and this method
+returns a new `MelodieGenerator`.
+
+The slicing rules are:
+
+- If two arguments `bound, rbound` passed in:
+  - `bound` must satisfy `bound >= 0`
+  - If `rbound >= 0`,
+    the interval is ``[bound, rbound)``
+  - If `rbound == -1`,
+    the interval is: ``[bound, +∞)``.
+    (`<0` values except `-1` **had not been supported** yet)
+
+- If only one argument `bound` passed in, the interval is ``[0, bound)``
+
+- `slice` has equivalent subscriptions, for example:
+  - `g.slice(1, 3)` <=> `g[1:3]`
+  - `g.slice(3)` <=> `g[:3]`
+  - `g.slice(1, -1)` <=> `g[1:]`
+  - Note that the returning value of integer subscriptions like
+    `g[3]` will not return the `MelodieGenerator`
+    but the 4th element.
+
+The slicing mechanism is demonstrated below:
 
 ```python
 In [2]: MelodieGenerator([1, 2, 3, 4, 5]).slice(1, 3).to_list()
+Out[2]: [2, 3]
+
+In [2]: MelodieGenerator([1, 2, 3, 4, 5])[1:3].to_list()
 Out[2]: [2, 3]
 
 In [3]: MelodieGenerator([1, 2, 3, 4, 5]).slice(1, -1).to_list()
@@ -386,7 +411,7 @@ def cmp(a, b):
 [5, 4, 3, 2, 1]
 ```
 
-#### Differences between MelodieFrozenGenerator and MelodieGenerator
+#### Notes to MelodieFrozenGenerator
 
 > Note 1: `head` method on frozen generator will always
 return the first value
@@ -397,6 +422,35 @@ return the first value
 1
 >>> g.head()
 1
+```
+
+> Note 2:  Operations like `filter` and `map` on `MelodieFrozenGenerator` will return a general `MelodieGenerator`. 
+To freeze the filtered/mapped result,
+please use `.freeze()`/`.f` method on the new generator.
+
+```python
+In [1]: from MelodieFuncFlow import *
+
+In [2]: g_freeze = MelodieGenerator([1, 2, 3, 4, 5]).f
+
+In [3]: g_mapped = g_freeze.map(lambda x: x*x)
+
+In [4]: g_mapped.head()
+Out[4]: 1
+
+In [5]: g_mapped.head()
+Out[5]: 4
+
+In [6]: g_mapped.head()
+Out[6]: 9
+
+In [7]: g_mapped_frozen = g_freeze.map(lambda x: x*x).f
+
+In [8]: g_mapped_frozen.head()
+Out[8]: 1
+
+In [9]: g_mapped_frozen.head()
+Out[9]: 1
 ```
 
 ### Showing Progress
@@ -430,7 +484,11 @@ For frozen generator, as the total value is known,
 
 ## Version History
 
-- 0.1
+- 0.2.0
+  - Distinguished `reduce` and `fold_left` methods.
+  - Added slicing methods for element accessing.
+
+- 0.1.0
   - Initial Release
 
 ## License

@@ -1,11 +1,11 @@
 import setuptools
 
-with open("README.md") as f:
+with open("README.md", encoding="utf-8") as f:
     long_description = f.read()
 
 setuptools.setup(
     name="MelodieFuncFlow",
-    version="0.1.0",
+    version="0.2.0",
     description="Functional programming extension of Melodie",
     long_description=long_description,
     long_description_content_type="text/markdown",
