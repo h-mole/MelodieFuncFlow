@@ -233,14 +233,28 @@ So finally we got the value **120**.
 
 #### Example for MelodieGenerator
 
+In MelodieGenerator, there are two types of reduction method
+that we can use, the comparison is shown in the following table.
+
+Note that in the following table:
+
+- Element type of `MelodieGenerator` are marked as `T`.
+
+- `(A, B) => R` indicates a python function with two argument
+having types `A` and `B` accordingly, and returning type `R`.
+
+|Characteristics \ Reduction Type| `reduce`        | `fold_left`   |
+|--------------------------------|-----------------|---------------|
+|Reducer Function Type           | `(T, T) => T`   | `(A, T) => A` |
+|Recommended Reducer Kind        | Pure and simple, without any side effect | Complex and might have side effect|
+
 An reducing example for MelodieGenerator is as follows.
-Note that initial value is required now.
 
 ```python
->>> MelodieGenerator([-1, 1, 3, 5]).reduce(lambda x, y: x + y, 0)
+>>> MelodieGenerator([-1, 1, 3, 5]).reduce(lambda x, y: x + y)
 8
 
->>> MelodieGenerator([[-1], [1, 3, 5]]).reduce(lambda x, y: x + y, []) 
+>>> MelodieGenerator([[-1], [1, 3, 5]]).reduce(lambda x, y: x + y) 
 [-1, 1, 3, 5]
 
 def add_to_dict(dic, elem):
@@ -248,7 +262,7 @@ def add_to_dict(dic, elem):
     dic[k] = v
     return dic
 
->>> MelodieGenerator([("Alice", 98), ("Bob", 76)]).reduce(add_to_dict, {})         
+>>> MelodieGenerator([("Alice", 98), ("Bob", 76)]).fold_left(add_to_dict, {})         
 {'Alice': 98, 'Bob': 76}
 ```
 

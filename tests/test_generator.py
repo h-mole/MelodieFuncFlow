@@ -1,5 +1,12 @@
+from ast import Tuple
 import time
-from MelodieFuncFlow import MelodieGenerator, MelodieFrozenGenerator, compose
+from typing import Dict
+from MelodieFuncFlow import (
+    MelodieGenerator,
+    MelodieFrozenGenerator,
+    compose,
+    melodie_generator,
+)
 
 
 def test_generator():
@@ -7,6 +14,26 @@ def test_generator():
     for item in MelodieGenerator([1, 2, 3]):
         out.append(item)
     assert out == [1, 2, 3]
+
+
+def test_head():
+    g = MelodieGenerator([1, 2, 3]).f
+    assert g.head() == 1
+    assert g.head() == 1
+    assert g.head() == 1
+    g = MelodieGenerator([1, 2, 3])
+
+    assert g.head() == 1
+    assert g.head() == 2
+    assert g.head() == 3
+
+
+def test_attributes():
+    assert MelodieGenerator([1 + 1j, 1 + 2j, 3 + 5j]).attributes("imag").l == [1, 2, 5]
+
+
+def test_cast():
+    assert MelodieGenerator([1, 2, 3, 4, 5]).map(lambda x: float(x)).cast(float).l
 
 
 def test_iteration_on_generator():
@@ -20,6 +47,10 @@ def test_iteration_on_generator():
     assert len(remaining) == 0
 
 
+def test_filter():
+    assert MelodieGenerator([1, 2, 3, 4, 5]).filter(lambda x: x > 3).l == [4, 5]
+
+
 def test_slice():
     print("x", MelodieGenerator(iter([1, 2, 3, 4, 5])).slice(1, 3).to_list())
     assert [2, 3] == MelodieGenerator(iter([1, 2, 3, 4, 5])).slice(1, 3).to_list()
@@ -28,7 +59,9 @@ def test_slice():
     g = MelodieGenerator(range(5))
     assert [0, 1, 2] == g.slice(0, 3).to_list()
     g = MelodieGenerator(range(5))
-    assert [3, 4] == g.slice(3).to_list()
+    assert [0, 1] == g.slice(2).to_list()
+
+    assert MelodieGenerator(range(5)).slice(2, -1).to_list() == [2, 3, 4]
 
 
 def test_reduce():
@@ -36,7 +69,28 @@ def test_reduce():
     ret = g.reduce(lambda sum, b: sum + b, 0)
     assert ret == 15
     ret = g.slice(2).reduce(lambda sum, b: sum + b, 0)
-    assert ret == 12
+    assert ret == 3
+
+    assert MelodieGenerator(iter([1, 2, 3, 4, 5])).reduce(lambda a, b: a + b) == 15
+
+
+def test_folding_left():
+    def add_to_dict(d: Dict, val):
+        d[val] = val
+        return d
+
+    ret = MelodieGenerator(iter([1, 2, 3, 4, 5])).fold_left(add_to_dict, {})
+    for i in [1, 2, 3, 4, 5]:
+        assert ret[i] == i
+    
+    def add_to_dict_2(dic, elem):
+        k, v = elem
+        dic[k] = v
+        return dic
+
+
+    ret = MelodieGenerator([("Alice", 98), ("Bob", 76)]).fold_left(add_to_dict_2, {})
+    assert {"Alice": 98, "Bob": 76} == ret
 
 
 def test_iteration_on_frozen():
@@ -59,8 +113,10 @@ def test_iteration_on_frozen():
     assert len(remaining) == 5
 
 
-def test_iteration_with_freeze():
+def test_freeze():
     g = MelodieGenerator([1, 2, 3, 4, 5]).freeze()
+    assert len(g) == 5
+    assert g.len == 5
 
     for item in g:
         pass
@@ -68,6 +124,11 @@ def test_iteration_with_freeze():
     for item in g:
         remaining.append(item)
     assert len(remaining) == 5
+    try:
+        next(g)
+        raise ValueError("Must raise an error above")
+    except NotImplementedError:
+        pass
 
 
 def test_star():
@@ -93,6 +154,33 @@ def test_indexed():
     ).l
 
 
+def test_indexed_extra_job():
+    l = []
+
+    def job(index, x):
+        l.append(index)
+
+    MelodieGenerator([1, 2, 3, 4, 5]).indexed_extra_job(job).exhaust()
+    assert l == [0, 1, 2, 3, 4]
+
+
 def test_process():
     g = MelodieGenerator([1, 2, 3, 4, 5]).freeze()
-    g.show_progress().extra_job(lambda x: time.sleep(0.2)).to_list()
+    g.show_progress().extra_job(lambda x: time.sleep(0.1)).to_list()
+
+    g = MelodieGenerator([1, 2, 3, 4, 5])
+    g.show_progress().extra_job(lambda x: time.sleep(0.1)).to_list()
+
+
+def test_conv():
+    assert MelodieGenerator([1, 2, 3, 3, 4]).to_set() == {1, 2, 3, 4}
+    assert MelodieGenerator([1, 2, 3, 3, 4]).s == {1, 2, 3, 4}
+
+
+def test_decorators():
+    @melodie_generator
+    def f():
+        for i in range(3):
+            yield i
+
+    assert f().to_list() == [0, 1, 2]

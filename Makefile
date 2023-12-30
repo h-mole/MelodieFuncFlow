@@ -8,7 +8,8 @@ test:
 	pytest -s
 
 test-cov:
-	pytest -s --cov
+	pytest -s --cov-report=term-missing \
+		--cov=MelodieFuncFlow
 
 format:
 	black .

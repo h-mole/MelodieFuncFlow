@@ -35,8 +35,7 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(
         include=["MelodieFuncFlow", "MelodieFuncFlow.*"]
     ),
-    install_requires=[
-    ],
+    install_requires=[],
     python_requires=">=3.8",
     include_package_data=True,
 )

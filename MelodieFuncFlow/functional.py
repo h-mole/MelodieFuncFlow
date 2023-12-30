@@ -31,9 +31,10 @@ P = ParamSpec("P")
 def _in_jupyter() -> bool:
     try:
         from IPython import get_ipython
+
         shell = get_ipython().__class__.__name__
-        if shell == 'ZMQInteractiveShell':
-            return True   # Jupyter notebook or qtconsole
+        if shell == "ZMQInteractiveShell":
+            return True  # Jupyter notebook or qtconsole
         else:
             return False
     except:
@@ -254,16 +255,31 @@ class MelodieGenerator(Generic[VARTYPE]):
 
         return MelodieGenerator(_(self))
 
-    def reduce(
+    def fold_left(
         self, func: Callable[[VARTYPE2, VARTYPE], VARTYPE2], initial: VARTYPE2
-    ) -> VARTYPE2:
+    ):
+        """
+        ``fold_left`` is a higher-order function in functional programming
+            languages that performs a binary operation on elements of a list
+            or sequence, accumulating the result from left to right.
+
+        This method takes two arguments:
+
+        :initial: An initial value (often called the "identity" or "zero element")
+        :func: A binary operation (also known as a "reducer" or "combinator")
+        """
+        return functools.reduce(func, self, initial)
+
+    def reduce(
+        self, func: Callable[[VARTYPE, VARTYPE], VARTYPE], initial: VARTYPE = None
+    ) -> VARTYPE:
         """
         Perform reduce on this generator.
         """
-        value = initial
-        for item in self.inner:
-            value = func(value, item)
-        return value
+        if initial is None:
+            return functools.reduce(func, self)
+        else:
+            return functools.reduce(func, self, initial)
 
     def exhaust(self) -> None:
         """
@@ -273,23 +289,34 @@ class MelodieGenerator(Generic[VARTYPE]):
             pass
         return
 
-    def slice(self, start: int, stop: int = -1) -> "MelodieGenerator[VARTYPE]":
+    def slice(
+        self, bound: int, rbound: Optional[int] = None
+    ) -> "MelodieGenerator[VARTYPE]":
         """
         Select an interval of elements inside this generator, returning a new Generator.
 
-        Like many other similar operations, the interval is close-left and open-right: ``[start, stop)``
+        If two arguments passed in and rbound>=0,
+            the interval is close-left and open-right: ``[bound, rbound)``
+
+        If two arguments passed in and rbound<0,
+            the interval is: ``[bound, +∞)``
+
+        If one argument passed in, like `range`, the interval is ``[0, bound)``
         """
-        assert start >= 0
-        if stop >= 0:
-            assert start < stop, (start, stop)
+        assert bound >= 0
+        if rbound is None:
+            start, stop = 0, bound
+        elif rbound < 0:
+            start, stop = bound, -1
+        else:
+            assert rbound >= bound
+            start, stop = bound, rbound
 
         def _(orig_gen: Iterable[VARTYPE]):
             if stop < 0:
                 for i, item in enumerate(orig_gen):
                     if i >= start:
                         yield item
-                    else:
-                        continue
             else:
                 for i, item in enumerate(orig_gen):
                     if start <= i < stop:
@@ -396,6 +423,10 @@ class MelodieFrozenGenerator(MelodieGenerator, Generic[VARTYPE]):
         ), f"parameter inner should be list or tuple, but got {inner}"
         self.inner = inner
 
+    @property
+    def len(self):
+        return len(self.inner)
+
     def __len__(self):
         return len(self.inner)
 
@@ -404,7 +435,7 @@ class MelodieFrozenGenerator(MelodieGenerator, Generic[VARTYPE]):
 
     def __next__(self) -> Any:
         raise NotImplementedError
-    
+
     def head(self) -> Any:
         return self.inner[0]
 
@@ -491,13 +522,13 @@ def melodie_generator(
     return inner
 
 
-def generator_next(g: Generator[VARTYPE, None, None]) -> Tuple[VARTYPE, bool]:
-    try:
-        return next(g), True
-    except StopIteration:
-        return None, False
+# def generator_next(g: Generator[VARTYPE, None, None]) -> Tuple[VARTYPE, bool]:
+#     try:
+#         return next(g), True
+#     except StopIteration:
+#         return None, False
 
 
-def to_generator(it: Iterable[VARTYPE]) -> Generator[VARTYPE, None, None]:
-    for item in it:
-        yield item
+# def to_generator(it: Iterable[VARTYPE]) -> Generator[VARTYPE, None, None]:
+#     for item in it:
+#         yield item
