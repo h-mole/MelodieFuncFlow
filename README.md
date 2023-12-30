@@ -258,7 +258,7 @@ Extra jobs by `extra_job` in `MelodieGenerator` is a kind of
 operation that will not interfere the computation flow.
 
 For example, in code `In [13]` and `In [14]`, a `print`
-is inserted into the computation flow in two different
+was inserted into the computation flow in two different
 positions, and middle results
 were printed.
 However, the result `Out[13]` and `Out[14]` are also the
@@ -400,7 +400,9 @@ To show progress, just use `show_progress` method.
 ```python
 In [19]: import time
 In [20]: MelodieGenerator([-1, 1, 3, 5]).extra_job(lambda x: time.sleep(1)).show_progress().to_list()
+
 4it [00:04,  1.01s/it]
+
 Out[20]: [-1, 1, 3, 5]
 ```
 
@@ -409,7 +411,7 @@ For frozen generator, as the total value is known,
 
 ```python
 >>> MelodieGenerator([-1, 1, 3, 5]).freeze().show_progress().extra_job(lambda x: time.sleep(1)).to_list() 
-100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:04<00:00,  1.01s/it]
+100% ██████████████████████████████████████████████| 4/4 [00:04<00:00,  1.01s/it]
 ```
 
 ## Version History
