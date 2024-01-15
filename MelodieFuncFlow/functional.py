@@ -423,7 +423,7 @@ class SeqIter:
         return next_item
 
 
-class MelodieFrozenGenerator(MelodieGenerator, Generic[VARTYPE]):
+class MelodieFrozenGenerator(MelodieGenerator[VARTYPE]):
     """
     ``MelodieFrozenGenerator`` is like ``MelodieGenerator``, but it will start from the same
     head object when applying ``iter(g)`` on it for multiple times.
