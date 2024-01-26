@@ -1,4 +1,4 @@
-# MelodieFunctFlow
+# MelodieFuncFlow
 
 [![Tests](https://github.com/hzyrc6011/MelodieFuncFlow/actions/workflows/python-app.yml/badge.svg)](https://github.com/hzyrc6011/MelodieFuncFlow/actions/workflows/python-app.yml)
 
@@ -484,12 +484,16 @@ For frozen generator, as the total value is known,
 
 ## Version History
 
+- 0.3.0
+  - Fixed the type hinting problem of MelodieFrozenGenerator;
+  - Fixed typos in this README.
+
 - 0.2.0
-  - Distinguished `reduce` and `fold_left` methods.
+  - Distinguished `reduce` and `fold_left` methods;
   - Added slicing methods for element accessing.
 
 - 0.1.0
-  - Initial Release
+  - Initial Release.
 
 ## License
 

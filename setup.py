@@ -5,7 +5,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setuptools.setup(
     name="MelodieFuncFlow",
-    version="0.3.0",
+    version="0.4.0b",
     description="Functional programming extension of Melodie",
     long_description=long_description,
     long_description_content_type="text/markdown",
